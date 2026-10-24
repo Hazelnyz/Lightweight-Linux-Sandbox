@@ -1,0 +1,9 @@
+minibox
+stress
+*.csv
+*.bak
+*.step1
+*.old
+*.v1
+rootfs/
+results/
