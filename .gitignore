@@ -7,3 +7,4 @@ stress
 *.v1
 rootfs/
 results/
+day1/hello_pid
