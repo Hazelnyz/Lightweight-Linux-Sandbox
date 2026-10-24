@@ -1,0 +1,332 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>minibox · CPU</title><style>:root{--bg:#0b0e13;--panel:#12171f;--panel2:#171d27;--line:#232b38;--tx:#e6ebf2;--mut:#8b96a8;--lim:#ff8a4c;--unl:#4da3ff;--ok:#4ade80;--bad:#ff5d6c;--acc:#7c9cff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;min-height:100vh}
+a{color:inherit;text-decoration:none}
+#side{width:232px;flex:none;background:#0e1219;border-right:1px solid var(--line);padding:22px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+.brand{font-weight:700;font-size:19px;letter-spacing:.3px;padding:0 10px}
+.brand span{color:var(--acc)}
+.brandsub{color:var(--mut);font-size:11.5px;padding:2px 10px 18px;line-height:1.35}
+#side a.nv{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--mut);font-size:14.5px;border-left:3px solid transparent}
+#side a.nv i{width:9px;height:9px;border-radius:3px;background:var(--c,#556);display:inline-block}
+#side a.nv:hover{background:#151b25;color:var(--tx)}
+#side a.nv.on{background:#171f2c;color:var(--tx);border-left-color:var(--c,var(--acc))}
+.sidefoot{margin-top:auto;color:var(--mut);font-size:11.5px;padding:0 10px;line-height:1.5}
+main{flex:1;min-width:0;padding:28px 34px 60px;max-width:1240px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:27px;margin:0 0 4px;letter-spacing:-.2px}
+.lead{color:var(--mut);margin:0;max-width:720px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 12px;font-size:12.5px;color:var(--mut)}
+.chip b{color:var(--tx);font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 18px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.tile .k{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.6px}
+.tile .v{font-size:27px;font-weight:700;margin:4px 0 2px;letter-spacing:-.3px}
+.tile .s{color:var(--mut);font-size:12.5px}
+.tile.lim .v{color:var(--lim)}.tile.unl .v{color:var(--unl)}.tile.bad .v{color:var(--bad)}.tile.ok .v{color:var(--ok)}
+.grid{display:grid;gap:16px;margin-bottom:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g21{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
+@media(max-width:1000px){.g2,.g3,.g21{grid-template-columns:1fr}}
+@media(max-width:760px){body{flex-direction:column}#side{width:auto;height:auto;position:static;flex-direction:row;flex-wrap:wrap;padding:12px}.sidefoot,.brandsub{display:none}main{padding:18px 14px 40px}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;min-width:0}
+.panel h3{margin:0;font-size:16px}.panel .sub{margin:2px 0 0;color:var(--mut);font-size:13px}
+.ch-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--mut);align-items:center;flex-wrap:wrap}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.ch-wrap{position:relative}
+svg{display:block;width:100%;height:auto}
+.gl{stroke:#1e2631;stroke-width:1}.axl{stroke:#2c3646}.ax{fill:var(--mut);font-size:11.5px}
+.refl{stroke:#9aa4b2;stroke-width:1.4;stroke-dasharray:6 5;fill:none}.reft{fill:#b6bfcc;font-size:11.5px}
+.cur{stroke:#c7d0de;stroke-width:1;stroke-dasharray:3 3;opacity:.7}
+.mk{stroke:var(--bad);stroke-width:1.4;stroke-dasharray:4 4}.mkt{fill:var(--bad);font-size:11.5px;font-weight:600}
+.tip{position:absolute;top:8px;pointer-events:none;background:#0b0e13ee;border:1px solid #2c3646;border-radius:8px;padding:7px 10px;font-size:12.5px;white-space:nowrap;display:none;z-index:3}
+.tip b{display:block;margin-bottom:3px;color:var(--mut);font-weight:600}
+.tip div i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:16px}
+.btn{background:var(--acc);color:#0b0e13;border:0;border-radius:8px;padding:7px 14px;font-weight:700;cursor:pointer;font-size:13.5px}
+.btn.ghost{background:#1b2331;color:var(--tx);font-weight:600}
+.bar input[type=range]{flex:1;min-width:140px;accent-color:var(--acc)}
+.bar select{background:#1b2331;color:var(--tx);border:1px solid var(--line);border-radius:6px;padding:5px}
+.clock{font-variant-numeric:tabular-nums;color:var(--mut);min-width:96px;font-size:13px}
+.meter{margin:10px 0 14px}.meter .row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;gap:10px}
+.meter .row span:first-child{color:var(--mut)}.meter .row b{font-variant-numeric:tabular-nums}
+.track{height:12px;background:#0e131b;border:1px solid var(--line);border-radius:7px;position:relative;overflow:hidden}
+.fill{height:100%;border-radius:6px;width:0;transition:width .08s linear}
+.tick{position:absolute;top:-2px;bottom:-2px;width:2px;background:#e6ebf2;opacity:.8}
+.ev{list-style:none;margin:8px 0 0;padding:0;position:relative}
+.ev li{display:flex;gap:12px;padding:8px 0 8px 18px;position:relative;opacity:.45;transition:opacity .2s;font-size:13.5px}
+.ev li::before{content:"";position:absolute;left:3px;top:14px;width:9px;height:9px;border-radius:50%;background:var(--c,#5b6678)}
+.ev li::after{content:"";position:absolute;left:7px;top:26px;bottom:-8px;width:1px;background:var(--line)}
+.ev li:last-child::after{display:none}.ev li.done{opacity:1}
+.ev time{color:var(--mut);font-variant-numeric:tabular-nums;min-width:56px;flex:none}
+.hbars .row{display:grid;grid-template-columns:128px 1fr 74px;gap:10px;align-items:center;margin:9px 0;font-size:13px}
+.hbars .row span:first-child{color:var(--mut)}.hbars .row b{text-align:right;font-variant-numeric:tabular-nums}
+.hbars .track{height:16px}
+.ringwrap{display:flex;align-items:center;gap:16px;margin-top:6px}.ringwrap p{margin:0;color:var(--mut);font-size:13px}.ringwrap p b{color:var(--tx);font-size:22px;display:block}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+td.wrap{white-space:normal}
+.scroll{overflow-x:auto}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px}
+code{background:#0e131b;border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.tag{display:inline-block;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:600}
+.tag.l{background:#ff8a4c22;color:var(--lim)}.tag.u{background:#4da3ff22;color:var(--unl)}.tag.bad{background:#ff5d6c22;color:var(--bad)}.tag.ok{background:#4ade8022;color:var(--ok)}
+.steps{counter-reset:s;list-style:none;margin:8px 0 0;padding:0}
+.steps li{counter-increment:s;padding:7px 0 7px 36px;position:relative;font-size:14px}
+.steps li::before{content:counter(s);position:absolute;left:0;top:7px;width:24px;height:24px;border-radius:50%;background:#1b2331;color:var(--acc);font-weight:700;text-align:center;line-height:24px;font-size:12.5px}
+.say{border-left:3px solid var(--acc);background:#7c9cff12}
+.say ul{margin:6px 0 0;padding-left:18px;color:#cfd7e4;font-size:14px}.say li{margin:4px 0}
+.rescard{display:block;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;transition:transform .15s,border-color .15s}
+.rescard:hover{transform:translateY(-2px);border-color:var(--c)}
+.rescard h3{margin:0 0 2px;display:flex;justify-content:space-between;align-items:center}
+.rescard .go{color:var(--c);font-size:13px;font-weight:600}
+.rescard .big{font-size:30px;font-weight:700;margin:6px 0 0;color:var(--c)}.rescard .s{color:var(--mut);font-size:13px;min-height:38px}
+.pipe{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.pipe div{flex:1;min-width:150px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--mut)}
+.pipe b{display:block;color:var(--tx);margin-bottom:2px;font-size:13.5px}
+details{border-top:1px solid var(--line);padding:8px 0}summary{cursor:pointer;font-weight:600}
+pre{background:#0b0e13;border:1px solid var(--line);border-radius:8px;padding:10px 12px;overflow:auto;font-size:12.5px;color:#cfd7e4;margin:8px 0 2px}
+footer{color:var(--mut);font-size:12px;margin-top:30px;border-top:1px solid var(--line);padding-top:14px}
+.pipe code{word-break:break-all}
+</style></head><body data-page='cpu'><script id='data' type='application/json'>{"runs":{"mem_limited":{"t":[0.027,0.128,0.228,0.329,0.429,0.53,0.63,0.731,0.831,0.931,1.032,1.132,1.233,1.333,1.433,1.534,1.634,1.735,1.835,1.935,2.036,2.136,2.236,2.337,2.437,2.538,2.638,2.738,2.839,2.939,3.04,3.14,3.24,3.341],"mem":[0.25,2.379,4.379,6.379,8.379,10.379,12.379,14.379,16.379,18.379,20.379,22.379,23.379,25.379,27.379,29.379,31.379,33.379,35.379,37.379,39.379,41.379,42.379,44.379,46.629,48.629,50.629,52.629,54.629,56.629,58.629,60.629,61.629,63.629],"pids":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"cpu":[0.0,0.006,0.011,0.016,0.02,0.025,0.029,0.033,0.037,0.041,0.045,0.049,0.052,0.057,0.063,0.068,0.075,0.08,0.085,0.09,0.095,0.101,0.104,0.109,0.114,0.12,0.125,0.131,0.136,0.142,0.147,0.152,0.156,0.161],"report":{"exit":"KILLED BY OOM (memory limit hit)","wall_num":3.44,"cpu_num":0.19,"peak_num":64.0,"oom_num":2.0,"pids_num":0.0,"raw":"[minibox] container 'mem_limited' started: host PID 1946, cgroup /sys/fs/cgroup/minibox/mem_limited\n\n========== minibox report: mem_limited ==========\nexit reason     : KILLED BY OOM (memory limit hit)\nwall time       : 3.44 s\ncpu time used   : 0.19 s\npeak memory     : 64.00 MB\nOOM kills       : 2\nfork denied (pids.max hit) : 0 times\nlog written to  : minibox-mem_limited.csv"}},"mem_unlimited":{"t":[0.032,0.133,0.233,0.334,0.434,0.535,0.635,0.736,0.836,0.937,1.037,1.138,1.238,1.338,1.439,1.539,1.639,1.74,1.84,1.94,2.041,2.141,2.241,2.342,2.442,2.543,2.643,2.744,2.844,2.944,3.045,3.145,3.246,3.346,3.446,3.547,3.647,3.748,3.848,3.948,4.049,4.149,4.25,4.35,4.45,4.551,4.651,4.752,4.852,4.953,5.053,5.154,5.254,5.354,5.455,5.555,5.656,5.756,5.856,5.957,6.057,6.158,6.258,6.358,6.459,6.559,6.66,6.76,6.861,6.961,7.062,7.162,7.263,7.363,7.463,7.564,7.664,7.765,7.865,7.965,8.066,8.166,8.267,8.367,8.467,8.568,8.668,8.768,8.869,8.97,9.07,9.17,9.271,9.371,9.472,9.572,9.673,9.773,9.874,9.974,10.074,10.175,10.275,10.376,10.476,10.577,10.677,10.777,10.878,10.978,11.079,11.179,11.279,11.38,11.481,11.581,11.682,11.782,11.882,11.983,12.083,12.183,12.284,12.384,12.485,12.585,12.686,12.786,12.886,12.987,13.087,13.188,13.288,13.388,13.489,13.589,13.69,13.79,13.89,13.991,14.091,14.191,14.292,14.392,14.493,14.593,14.693,14.794,14.894,14.995,15.095,15.195,15.296,15.396,15.496,15.597,15.697,15.797,15.898,15.998,16.099,16.199,16.3,16.4,16.501,16.601,16.701,16.802,16.902,17.003,17.103,17.203,17.304,17.405,17.505,17.606,17.706,17.807,17.907,18.008,18.108,18.208,18.309,18.409,18.51,18.61,18.711,18.811,18.911,19.012,19.112,19.213,19.313,19.414,19.514,19.614,19.715,19.815,19.916,20.016,20.117,20.217,20.318,20.418,20.519,20.619,20.719,20.82,20.92,21.021],"mem":[0.25,2.387,4.387,6.387,8.387,10.387,12.387,14.387,16.387,18.387,20.387,22.387,24.387,25.387,27.387,29.387,31.387,33.387,35.387,37.387,39.387,41.387,43.387,45.637,46.637,48.637,50.637,52.637,54.637,56.637,58.637,60.637,62.637,64.637,66.637,68.387,69.637,71.637,73.637,75.637,77.637,79.637,81.637,83.637,85.637,86.637,88.887,90.887,92.887,94.887,96.887,98.887,100.637,101.887,103.887,105.887,107.887,109.887,111.887,113.887,114.887,116.887,118.887,120.887,122.887,124.887,126.887,128.887,130.887,132.137,134.137,136.137,138.137,140.137,142.137,144.137,146.137,148.137,149.137,151.137,153.137,155.137,157.137,159.137,161.137,163.137,165.137,166.137,168.137,170.137,172.137,174.387,176.387,178.387,180.387,182.387,183.387,185.387,187.387,189.387,191.387,193.387,195.387,197.387,199.387,200.387,202.387,204.387,206.387,208.387,210.387,212.387,214.387,216.637,217.637,219.637,221.637,223.637,225.637,227.637,229.637,230.637,232.637,234.637,236.637,238.637,240.637,242.637,244.637,246.637,247.637,249.637,251.637,253.637,255.637,257.637,259.887,261.887,263.387,264.887,266.887,268.887,270.887,272.887,274.887,276.887,278.887,280.137,281.887,283.887,285.887,287.887,289.887,291.887,293.887,295.887,296.887,298.887,300.887,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,187.203],"pids":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"cpu":[0.0,0.006,0.01,0.015,0.018,0.022,0.026,0.031,0.034,0.038,0.042,0.046,0.052,0.055,0.06,0.064,0.068,0.071,0.075,0.081,0.085,0.09,0.096,0.101,0.104,0.11,0.116,0.123,0.129,0.134,0.137,0.141,0.144,0.148,0.151,0.153,0.157,0.163,0.168,0.174,0.18,0.185,0.191,0.199,0.205,0.208,0.214,0.221,0.228,0.235,0.244,0.251,0.254,0.261,0.27,0.277,0.283,0.29,0.298,0.304,0.307,0.314,0.32,0.328,0.336,0.342,0.348,0.353,0.358,0.363,0.369,0.375,0.381,0.387,0.393,0.398,0.404,0.41,0.413,0.419,0.424,0.431,0.437,0.444,0.45,0.455,0.461,0.464,0.47,0.475,0.482,0.488,0.493,0.499,0.505,0.511,0.514,0.52,0.526,0.532,0.539,0.545,0.551,0.557,0.562,0.566,0.572,0.578,0.584,0.59,0.596,0.603,0.609,0.614,0.617,0.632,0.638,0.644,0.651,0.657,0.663,0.666,0.672,0.678,0.684,0.69,0.696,0.701,0.709,0.717,0.719,0.726,0.732,0.737,0.744,0.752,0.757,0.763,0.766,0.772,0.778,0.784,0.791,0.797,0.803,0.808,0.814,0.817,0.824,0.83,0.836,0.842,0.85,0.856,0.862,0.867,0.872,0.877,0.883,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.94],"report":{"exit":"exited normally, code 0","wall_num":21.12,"cpu_num":1.01,"peak_num":302.14,"oom_num":0.0,"pids_num":0.0,"raw":"[minibox] container 'mem_unlimited' started: host PID 1961, cgroup /sys/fs/cgroup/minibox/mem_unlimited\n\n========== minibox report: mem_unlimited ==========\nexit reason     : exited normally, code 0\nwall time       : 21.12 s\ncpu time used   : 1.01 s\npeak memory     : 302.14 MB\nOOM kills       : 0\nfork denied (pids.max hit) : 0 times\nlog written to  : minibox-mem_unlimited.csv"}},"fork_limited":{"t":[0.035,0.136,0.237,0.337,0.438,0.538,0.639,0.74,0.84,0.941,1.041,1.141,1.242,1.342,1.443,1.543,1.644,1.744,1.845,1.945,2.046,2.146,2.246,2.348,2.448,2.549,2.649,2.75,2.85,2.951,3.051,3.152,3.252,3.353,3.453,3.554,3.654,3.754,3.855,3.955,4.056,4.156,4.257,4.357,4.458,4.558,4.658,4.759,4.859,4.96,5.06,5.161,5.261,5.361,5.462,5.562,5.663,5.763,5.864,5.964,6.064,6.165,6.265,6.366,6.466,6.567,6.667,6.768,6.868,6.969,7.069,7.17,7.27,7.371,7.471,7.572,7.672,7.772,7.873,7.973,8.073,8.174,8.274,8.375,8.475,8.576,8.676,8.777,8.877,8.977,9.078,9.178,9.279,9.379,9.48,9.58,9.68,9.781,9.881,9.982],"mem":[0.25,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949],"pids":[1,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20],"cpu":[0.0,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013],"report":{"exit":"exited normally, code 0","wall_num":10.08,"cpu_num":0.02,"peak_num":3.55,"oom_num":0.0,"pids_num":1.0,"raw":"fork denied: Resource temporarily unavailable\ncreated 19 children\n[minibox] container 'fork_limited' started: host PID 1976, cgroup /sys/fs/cgroup/minibox/fork_limited\n\n========== minibox report: fork_limited ==========\nexit reason     : exited normally, code 0\nwall time       : 10.08 s\ncpu time used   : 0.02 s\npeak memory     : 3.55 MB\nOOM kills       : 0\nfork denied (pids.max hit) : 1 times\nlog written to  : minibox-fork_limited.csv"}},"fork_unlimited":{"t":[0.03,0.131,0.231,0.332,0.432,0.532,0.633,0.733,0.833,0.934,1.034,1.135,1.235,1.335,1.436,1.536,1.637,1.737,1.837,1.938,2.038,2.139,2.239,2.339,2.44,2.54,2.641,2.741,2.842,2.942,3.042,3.143,3.243,3.343,3.444,3.544,3.645,3.745,3.845,3.946,4.046,4.147,4.247,4.348,4.448,4.549,4.649,4.749,4.85,4.95,5.051,5.151,5.252,5.352,5.453,5.553,5.654,5.754,5.855,5.955,6.056,6.156,6.257,6.357,6.457,6.558,6.659,6.759,6.859,6.96,7.06,7.161,7.261,7.362,7.462,7.563,7.663,7.763,7.864,7.964,8.064,8.165,8.265,8.366,8.466,8.566,8.667,8.767,8.868,8.968,9.068,9.169,9.269,9.369,9.47,9.571,9.671,9.771,9.872,9.973,10.073],"mem":[0.25,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.145,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,5.746],"pids":[1,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,33],"cpu":[0.0,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.104],"report":{"exit":"exited normally, code 0","wall_num":10.17,"cpu_num":0.12,"peak_num":9.66,"oom_num":0.0,"pids_num":0.0,"raw":"created 100 children\n[minibox] container 'fork_unlimited' started: host PID 2011, cgroup /sys/fs/cgroup/minibox/fork_unlimited\n\n========== minibox report: fork_unlimited ==========\nexit reason     : exited normally, code 0\nwall time       : 10.17 s\ncpu time used   : 0.12 s\npeak memory     : 9.66 MB\nOOM kills       : 0\nfork denied (pids.max hit) : 0 times\nlog written to  : minibox-fork_unlimited.csv"}},"cpu_limited":{"t":[0.053,0.154,0.254,0.354,0.455,0.555,0.656,0.756,0.857,0.957,1.057,1.158,1.258,1.359,1.459,1.559,1.66,1.76,1.86,1.961,2.061,2.162,2.262,2.362,2.463,2.563,2.663,2.764,2.864,2.965,3.065,3.165,3.266,3.366,3.467,3.567,3.667,3.768,3.868,3.968,4.069,4.169,4.27,4.37,4.47,4.571,4.671,4.771,4.872,4.972,5.073],"mem":[0.25,2.898,2.898,2.898,2.898,2.898,2.898,2.898,2.898,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609],"pids":[1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],"cpu":[0.0,0.064,0.114,0.164,0.215,0.265,0.315,0.365,0.419,0.469,0.519,0.57,0.616,0.666,0.716,0.766,0.815,0.87,0.92,0.97,1.02,1.071,1.121,1.171,1.221,1.271,1.321,1.371,1.421,1.476,1.526,1.576,1.626,1.676,1.726,1.776,1.826,1.876,1.926,1.981,2.031,2.081,2.131,2.181,2.231,2.282,2.332,2.378,2.428,2.483,2.533],"report":{"exit":"exited normally, code 0","wall_num":5.17,"cpu_num":2.55,"peak_num":3.0,"oom_num":0.0,"pids_num":0.0,"raw":"Terminated\n[minibox] container 'cpu_limited' started: host PID 2128, cgroup /sys/fs/cgroup/minibox/cpu_limited\n\n========== minibox report: cpu_limited ==========\nexit reason     : exited normally, code 0\nwall time       : 5.17 s\ncpu time used   : 2.55 s\npeak memory     : 3.00 MB\nOOM kills       : 0\nfork denied (pids.max hit) : 0 times\nlog written to  : minibox-cpu_limited.csv"}},"cpu_unlimited":{"t":[0.025,0.126,0.226,0.327,0.427,0.528,0.628,0.728,0.829,0.929,1.029,1.13,1.23,1.331,1.431,1.531,1.632,1.732,1.832,1.933,2.033,2.134,2.234,2.335,2.435,2.536,2.636,2.736,2.837,2.937,3.038,3.138,3.239,3.339,3.439,3.54,3.64,3.74,3.841,3.942,4.042,4.142,4.243,4.343,4.443,4.544,4.644,4.745,4.846,4.946],"mem":[0.25,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812],"pids":[1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],"cpu":[0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.804,0.904,1.004,1.104,1.204,1.304,1.404,1.504,1.604,1.704,1.804,1.908,2.008,2.108,2.208,2.308,2.408,2.508,2.608,2.708,2.812,2.912,3.012,3.112,3.212,3.312,3.412,3.512,3.612,3.716,3.816,3.916,4.016,4.116,4.216,4.316,4.416,4.516,4.616,4.72,4.82,4.92],"report":{"exit":"exited normally, code 0","wall_num":5.05,"cpu_num":5.01,"peak_num":1.01,"oom_num":0.0,"pids_num":0.0,"raw":"Terminated\n[minibox] container 'cpu_unlimited' started: host PID 2148, cgroup /sys/fs/cgroup/minibox/cpu_unlimited\n\n========== minibox report: cpu_unlimited ==========\nexit reason     : exited normally, code 0\nwall time       : 5.05 s\ncpu time used   : 5.01 s\npeak memory     : 1.01 MB\nOOM kills       : 0\nfork denied (pids.max hit) : 0 times\nlog written to  : minibox-cpu_unlimited.csv"}}},"limits":{"mem_mib":64,"pids":20,"cpus":0.5},"title":"Lightweight Linux Sandbox with Resource Isolation & Monitoring"}</script><script>(function(){
+var D=JSON.parse(document.getElementById('data').textContent);
+var RUN=D.runs,L=D.limits,PAGE=document.body.getAttribute('data-page');
+var CL='#ff8a4c',CU='#4da3ff',CB='#ff5d6c',CO='#4ade80';
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function max(a){var m=0;for(var i=0;i<a.length;i++)if(a[i]>m)m=a[i];return m;}
+function last(a){return a.length?a[a.length-1]:0;}
+function fx(v,d){return (v==null||isNaN(v))?'?':v.toFixed(d);}
+function firstAt(s,th){for(var i=0;i<s.t.length;i++)if(s.v[i]>=th)return s.t[i];return null;}
+function valueAt(t,v,x){var n=t.length;if(!n)return 0;if(x>=t[n-1])return v[n-1];var i=0;while(i+1<n&&t[i+1]<=x)i++;return v[i];}
+function rate(r,key,win){var o=[],n=r.t.length;for(var i=0;i<n;i++){var j=i;while(j>0&&r.t[i]-r.t[j]<win)j--;var dt=r.t[i]-r.t[j];o.push(dt>0?(r[key][i]-r[key][j])/dt:0);}return o;}
+function nice(maxv,n){var s0=(maxv||1)/n,mag=Math.pow(10,Math.floor(Math.log(s0)/Math.LN10)),nm=s0/mag;
+ var step=(nm<=1?1:nm<=2?2:nm<=5?5:10)*mag,t=[],v=0;for(var i=0;i<40;i++){t.push(+v.toFixed(10));if(v>=maxv)break;v+=step;}return t;}
+
+/* ---------- layout: sidebar + header ---------- */
+var NAV=[['index.html','Overview','#7c9cff','index'],['memory.html','Memory','#ff8a4c','memory'],['processes.html','Forks / Processes','#4ade80','processes'],['cpu.html','CPU','#4da3ff','cpu'],['runs.html','All runs','#b48cff','runs']];
+function shell(title,lead,chips){
+ var s='<div class="brand">mini<span>box</span></div><div class="brandsub">Linux sandbox with resource isolation &amp; monitoring</div>';
+ NAV.forEach(function(n){s+='<a class="nv'+(n[3]===PAGE?' on':'')+'" style="--c:'+n[2]+'" href="'+n[0]+'"><i></i>'+n[1]+'</a>';});
+ s+='<div class="sidefoot">cgroups v2 &middot; namespaces<br>offline report</div>';
+ var side=document.createElement('nav');side.id='side';side.innerHTML=s;document.body.appendChild(side);
+ var m=document.createElement('main');
+ m.innerHTML='<div class="top"><div><h1>'+title+'</h1><p class="lead">'+lead+'</p></div><div class="chips">'+(chips||[]).map(function(c){return '<span class="chip">'+c+'</span>';}).join('')+'</div></div><div id="body"></div><footer>'+esc(D.title)+'<br>Data comes from real minibox runs (results/*.csv, sampled every 100 ms). &ldquo;OOM kill events&rdquo; counts kill events in <code>memory.events</code>, not distinct processes.</footer>';
+ document.body.appendChild(m);return $('body');
+}
+function tiles(list){return '<div class="tiles">'+list.map(function(t){return '<div class="tile '+(t[3]||'')+'"><div class="k">'+esc(t[0])+'</div><div class="v">'+esc(t[1])+'</div><div class="s">'+esc(t[2])+'</div></div>';}).join('')+'</div>';}
+function panel(id,cls){return '<div class="panel '+(cls||'')+'" id="'+id+'"></div>';}
+
+/* ---------- interactive line chart ---------- */
+function Chart(host,o){
+ var W=Math.max(430,Math.min(900,(host.clientWidth||900)-36)),H=o.H||330,ml=52,mr=18,mt=14,mb=36,pw=W-ml-mr,ph_=H-mt-mb;
+ var ser=o.series,xM=0,i;
+ ser.forEach(function(s){xM=Math.max(xM,last(s.t));});xM=o.xmax||xM||1;
+ var yMax=o.ymax||0;ser.forEach(function(s){yMax=Math.max(yMax,max(s.v));});
+ if(o.ref)yMax=Math.max(yMax,o.ref.fn(xM),o.ref.fn(0));
+ yMax*=1.08;if(!yMax)yMax=1;
+ var yT=nice(yMax,5);yMax=last(yT)||1;
+ host.innerHTML='<div class="ch-head"><div><h3>'+o.title+'</h3><p class="sub">'+(o.sub||'')+'</p></div><div class="legend">'+ser.map(function(s){return '<span><i style="background:'+s.color+'"></i>'+esc(s.name)+'</span>';}).join('')+(o.ref?'<span><i style="background:#9aa4b2"></i>'+esc(o.ref.label)+'</span>':'')+'</div></div><div class="ch-wrap"><svg viewBox="0 0 '+W+' '+H+'"></svg><div class="tip"></div></div>';
+ var svg=host.querySelector('svg'),tip=host.querySelector('.tip'),ph=null,hov=null;
+ function X(t){return ml+t/xM*pw;}function Y(v){return mt+ph_-v/yMax*ph_;}
+ function pts(s,lim){var a=[];for(var k=0;k<s.t.length;k++){if(lim!=null&&s.t[k]>lim)break;if(o.step&&k>0)a.push([X(s.t[k]),Y(s.v[k-1])]);a.push([X(s.t[k]),Y(s.v[k])]);}return a;}
+ function path(a){return a.length?'M'+a.map(function(p){return p[0].toFixed(1)+' '+p[1].toFixed(1);}).join('L'):'';}
+ function area(a){if(!a.length)return '';return path(a)+'L'+a[a.length-1][0].toFixed(1)+' '+Y(0).toFixed(1)+'L'+a[0][0].toFixed(1)+' '+Y(0).toFixed(1)+'Z';}
+ function draw(){
+  var s='<defs>'+ser.map(function(q,k){return '<linearGradient id="g'+host.id+k+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+q.color+'" stop-opacity=".30"/><stop offset="1" stop-color="'+q.color+'" stop-opacity="0"/></linearGradient>';}).join('')+'</defs>';
+  yT.forEach(function(v){var y=Y(v).toFixed(1);s+='<line class="gl" x1="'+ml+'" x2="'+(W-mr)+'" y1="'+y+'" y2="'+y+'"/><text class="ax" x="'+(ml-8)+'" y="'+(+y+4)+'" text-anchor="end">'+(o.dec?v.toFixed(o.dec):v)+'</text>';});
+  nice(xM,6).forEach(function(v){if(v>xM+1e-9)return;s+='<text class="ax" x="'+X(v).toFixed(1)+'" y="'+(H-mb+20)+'" text-anchor="middle">'+v+'</text>';});
+  s+='<line class="axl" x1="'+ml+'" x2="'+(W-mr)+'" y1="'+Y(0)+'" y2="'+Y(0)+'"/><text class="ax" x="'+(ml+pw/2)+'" y="'+(H-4)+'" text-anchor="middle">time (s)</text><text class="ax" x="'+ml+'" y="9">'+esc(o.unit||'')+'</text>';
+  var all=[];ser.forEach(function(q){all.push(pts(q,ph));});
+  ser.forEach(function(q,k){if(q.fill!==false)s+='<path d="'+area(all[k])+'" fill="url(#g'+host.id+k+')"/>';});
+  if(o.ref){s+='<path class="refl" d="M'+X(0).toFixed(1)+' '+Y(o.ref.fn(0)).toFixed(1)+'L'+X(xM).toFixed(1)+' '+Y(o.ref.fn(xM)).toFixed(1)+'"/><text class="reft" x="'+(W-mr-4)+'" y="'+(Y(o.ref.fn(xM))-7).toFixed(1)+'" text-anchor="end">'+esc(o.ref.label)+'</text>';}
+  (o.markers||[]).forEach(function(m){if(m.t==null||m.t>xM)return;var x=X(m.t).toFixed(1),right=m.t>xM*0.6;s+='<line class="mk" x1="'+x+'" x2="'+x+'" y1="'+mt+'" y2="'+Y(0)+'"/><text class="mkt" x="'+(right?x-6:+x+6)+'" y="'+(mt+14)+'" text-anchor="'+(right?'end':'start')+'">'+esc(m.label)+'</text>';});
+  ser.forEach(function(q,k){s+='<path d="'+path(all[k])+'" fill="none" stroke="'+q.color+'" stroke-width="2.4" stroke-linejoin="round"'+(q.dash?' stroke-dasharray="'+q.dash+'"':'')+'/>';});
+  var cx=ph!=null?ph:hov;
+  if(cx!=null){s+='<line class="cur" x1="'+X(cx).toFixed(1)+'" x2="'+X(cx).toFixed(1)+'" y1="'+mt+'" y2="'+Y(0)+'"/>';
+   ser.forEach(function(q){var v=valueAt(q.t,q.v,Math.min(cx,last(q.t)));s+='<circle cx="'+X(Math.min(cx,last(q.t))).toFixed(1)+'" cy="'+Y(v).toFixed(1)+'" r="4.5" fill="'+q.color+'" stroke="#0b0e13" stroke-width="2"/>';});}
+  svg.innerHTML=s;
+ }
+ function showTip(){
+  if(hov==null||ph!=null){tip.style.display='none';return;}
+  var h='<b>t = '+hov.toFixed(1)+' s</b>';
+  ser.forEach(function(q){var ended=hov>last(q.t)+1e-9,v=valueAt(q.t,q.v,hov);h+='<div><i style="background:'+q.color+'"></i>'+esc(q.name)+': '+(o.dec?v.toFixed(o.dec):Math.round(v*10)/10)+' '+esc(o.unitShort||'')+(ended?' (run ended)':'')+'</div>';});
+  tip.innerHTML=h;tip.style.display='block';var f=X(hov)/W;tip.style.left=f>0.6?'auto':(f*100+1.5)+'%';tip.style.right=f>0.6?((1-f)*100+1.5)+'%':'auto';
+ }
+ svg.addEventListener('mousemove',function(e){var r=svg.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*W;hov=Math.max(0,Math.min(xM,(x-ml)/pw*xM));draw();showTip();});
+ svg.addEventListener('mouseleave',function(){hov=null;draw();showTip();});
+ draw();
+ return {setPhase:function(t){ph=t;hov=null;draw();showTip();},xmax:xM};
+}
+
+/* ---------- small pieces ---------- */
+function meterHTML(id,label,color){return '<div class="meter"><div class="row"><span>'+label+'</span><b id="'+id+'v">-</b></div><div class="track"><div class="fill" id="'+id+'f" style="background:'+color+'"></div></div></div>';}
+function setMeter(id,val,maxv,text){var f=$(id+'f');if(!f)return;f.style.width=Math.max(0,Math.min(100,val/maxv*100))+'%';$(id+'v').textContent=text;}
+function hbars(rows){var m=0;rows.forEach(function(r){m=Math.max(m,r[1]);});return '<div class="hbars">'+rows.map(function(r){return '<div class="row"><span>'+esc(r[0])+'</span><div class="track"><div class="fill" style="width:'+(m?r[1]/m*100:0)+'%;background:'+r[2]+'"></div></div><b>'+esc(r[3])+'</b></div>';}).join('')+'</div>';}
+function ring(pct,color,label,sub){var r=38,c=2*Math.PI*r,p=Math.max(0,Math.min(100,pct));
+ return '<div class="ringwrap"><svg viewBox="0 0 100 100" style="width:104px;flex:none"><circle cx="50" cy="50" r="'+r+'" fill="none" stroke="#1b2331" stroke-width="11"/><circle cx="50" cy="50" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="11" stroke-linecap="round" stroke-dasharray="'+(c*p/100).toFixed(1)+' '+c.toFixed(1)+'" transform="rotate(-90 50 50)"/><text x="50" y="56" text-anchor="middle" fill="#e6ebf2" font-size="20" font-weight="700">'+Math.round(p)+'%</text></svg><p><b>'+esc(label)+'</b>'+esc(sub)+'</p></div>';}
+function events(list){return '<ul class="ev">'+list.map(function(e,i){return '<li data-i="'+i+'" style="--c:'+(e.c||'#5b6678')+'"><time>'+fx(e.t,1)+' s</time><span>'+e.text+'</span></li>';}).join('')+'</ul>';}
+function markEvents(host,list,t){var li=host.querySelectorAll('.ev li');for(var i=0;i<li.length;i++){var on=t==null||list[i].t<=t+1e-9;li[i].className=on?'done':'';}}
+function filesTable(rows){return '<div class="scroll"><table><tr><th>cgroup file</th><th>Value / use</th><th>Meaning</th></tr>'+rows.map(function(r){return '<tr><td><code>'+r[0]+'</code></td><td class="mono">'+r[1]+'</td><td class="wrap">'+r[2]+'</td></tr>';}).join('')+'</table></div>';}
+function say(list){return '<ul>'+list.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>';}
+function runRow(n){var r=RUN[n].report,lim=/_limited$/.test(n);
+ return '<tr><td><span class="tag '+(lim?'l':'u')+'">'+(lim?'limited':'unlimited')+'</span> '+esc(n)+'</td><td>'+esc(r.exit)+'</td><td>'+fx(r.wall_num,2)+' s</td><td>'+fx(r.cpu_num,2)+' s</td><td>'+fx(r.peak_num,1)+' MiB</td><td>'+fx(r.oom_num,0)+'</td><td>'+fx(r.pids_num,0)+'</td></tr>';}
+function runTable(names){return '<div class="scroll"><table><tr><th>Run</th><th>Exit reason</th><th>Wall</th><th>CPU used</th><th>Peak mem</th><th>OOM kill events</th><th>pids.max hits</th></tr>'+names.map(runRow).join('')+'</table></div>';}
+function spark(a,b,xk,ref){var W=300,H=84,m=6,xM=Math.max(last(a.t),last(b.t))||1,yM=Math.max(max(a[xk]),max(b[xk]),ref||0)*1.08||1;
+ function p(r){return r.t.map(function(t,i){return (m+t/xM*(W-2*m)).toFixed(1)+' '+(H-m-r[xk][i]/yM*(H-2*m)).toFixed(1);}).join('L');}
+ return '<svg viewBox="0 0 '+W+' '+H+'" style="margin-top:6px">'+(ref?'<line x1="'+m+'" x2="'+(W-m)+'" y1="'+(H-m-ref/yM*(H-2*m)).toFixed(1)+'" y2="'+(H-m-ref/yM*(H-2*m)).toFixed(1)+'" stroke="#9aa4b2" stroke-dasharray="5 4"/>':'')+'<path d="M'+p(b)+'" fill="none" stroke="'+CU+'" stroke-width="2.2"/><path d="M'+p(a)+'" fill="none" stroke="'+CL+'" stroke-width="2.2"/></svg>';}
+
+/* ---------- replay bar ---------- */
+function Replay(host,tMax,apply){
+ host.className='bar';
+ host.innerHTML='<button class="btn" id="rpb">▶ Replay</button><button class="btn ghost" id="rpf">Show full run</button><input type="range" id="rps" min="0" max="1000" value="1000"><span class="clock" id="rpc">full run</span><label class="clock">speed <select id="rpx"><option value="1">1x</option><option value="2" selected>2x</option><option value="4">4x</option></select></label>';
+ var b=$('rpb'),f=$('rpf'),s=$('rps'),c=$('rpc'),x=$('rpx'),t=tMax,raf=0,last_=0,playing=false;
+ function show(v){c.textContent=v==null?'full run':'t = '+v.toFixed(1)+' s';apply(v);}
+ function stop(){playing=false;cancelAnimationFrame(raf);b.textContent='▶ Replay';}
+ function frame(now){if(!playing)return;t+=(now-last_)/1000*(+x.value);last_=now;if(t>=tMax){t=tMax;s.value=1000;show(tMax);stop();return;}s.value=Math.round(t/tMax*1000);show(t);raf=requestAnimationFrame(frame);}
+ b.onclick=function(){if(playing){stop();return;}if(t>=tMax||+s.value>=1000)t=0;playing=true;b.textContent='❚❚ Pause';last_=performance.now();raf=requestAnimationFrame(frame);};
+ f.onclick=function(){stop();t=tMax;s.value=1000;show(null);};
+ s.oninput=function(){stop();t=+s.value/1000*tMax;show(+s.value>=1000?null:t);};
+ show(null);
+}
+
+/* =================== PAGES =================== */
+function pageOverview(){
+ var ml=RUN.mem_limited,mu=RUN.mem_unlimited,fl=RUN.fork_limited,fu=RUN.fork_unlimited,cl=RUN.cpu_limited,cu=RUN.cpu_unlimited;
+ var body=shell('Resource limits, measured','The same programs were run twice: once inside a minibox container with limits, once with none. Each resource has its own dashboard.',['<b>'+L.mem_mib+' MiB</b> memory','<b>'+L.pids+'</b> processes','<b>'+L.cpus+'</b> CPU']);
+ var killed=/OOM/i.test(ml.report.exit);
+ var share=cu.report.cpu_num?Math.round(cl.report.cpu_num/cu.report.cpu_num*100):0;
+ body.innerHTML=tiles([
+  ['Memory stopped at',fx(ml.report.peak_num,0)+' MiB','unlimited run reached '+fx(mu.report.peak_num,0)+' MiB',killed?'bad':'lim'],
+  ['Processes capped at',String(max(fl.pids)),'unlimited run created '+(max(fu.pids)-1)+' children','ok'],
+  ['CPU share',share+'%','of unlimited CPU time ('+fx(cl.report.cpu_num,2)+' s vs '+fx(cu.report.cpu_num,2)+' s)','unl'],
+  ['Runs measured','6','samples every 100 ms from cgroup files','']])+
+ '<div class="grid g3">'+
+ '<a class="rescard" style="--c:'+CL+'" href="memory.html"><h3>Memory<span class="go">Open dashboard →</span></h3><div class="s">'+(killed?'Limited run was killed by the kernel OOM killer after '+fx(ml.report.wall_num,1)+' s.':'Limited run stayed under its cap.')+'</div><div class="big">'+fx(ml.report.peak_num,0)+' / '+fx(mu.report.peak_num,0)+' MiB</div>'+spark(ml,mu,'mem',L.mem_mib)+'</a>'+
+ '<a class="rescard" style="--c:#4ade80" href="processes.html"><h3>Forks / Processes<span class="go">Open dashboard →</span></h3><div class="s">fork() was refused '+fx(fl.report.pids_num,0)+' time(s) once the cap of '+L.pids+' was reached.</div><div class="big">'+max(fl.pids)+' / '+max(fu.pids)+' procs</div>'+spark(fl,fu,'pids',L.pids)+'</a>'+
+ '<a class="rescard" style="--c:'+CU+'" href="cpu.html"><h3>CPU<span class="go">Open dashboard →</span></h3><div class="s">Throttled to half a core: about '+fx(cl.report.cpu_num,1)+' s of CPU in '+fx(cl.report.wall_num,1)+' s of wall time.</div><div class="big">'+fx(cl.report.cpu_num,1)+' / '+fx(cu.report.cpu_num,1)+' s</div>'+spark(cl,cu,'cpu',null)+'</a>'+
+ '</div>'+
+ '<div class="panel" style="margin-bottom:16px"><h3>How minibox builds a container</h3><p class="sub">What happens each time you type <code>sudo ./minibox run ...</code></p><div class="pipe">'+
+ '<div><b>1 · clone()</b>New PID, UTS, mount, IPC and net namespaces: its own process tree, hostname, mounts.</div>'+
+ '<div><b>2 · cgroup</b>Parent creates <code>/sys/fs/cgroup/minibox/&lt;name&gt;</code> and writes the limits.</div>'+
+ '<div><b>3 · pipe sync</b>Child waits until the parent has finished setup, then continues.</div>'+
+ '<div><b>4 · pivot_root</b>Child mounts /proc, /sys, /tmp, /dev and switches to the BusyBox root.</div>'+
+ '<div><b>5 · monitor</b>Parent samples memory, pids and CPU every 100 ms into the CSV and prints a report.</div></div></div>'+
+ '<div class="panel"><h3>All six runs</h3><p class="sub">Orange = limited, blue = unlimited. <a href="runs.html" style="color:var(--acc)">Full details and raw reports →</a></p>'+runTable(['mem_limited','mem_unlimited','fork_limited','fork_unlimited','cpu_limited','cpu_unlimited'])+'</div>';
+}
+
+function pageMemory(){
+ var a=RUN.mem_limited,b=RUN.mem_unlimited,lim=L.mem_mib,killed=/OOM/i.test(a.report.exit)||a.report.oom_num>0;
+ var tk=a.report.wall_num!=null?a.report.wall_num:last(a.t);
+ var rl=rate(a,'mem',0.5),ru=rate(b,'mem',0.5);
+ var body=shell('Memory usage','How much RAM each run used over time, what happens at the limit, and which kernel files record it.',['limit <b>'+lim+' MiB</b>','file <b>memory.max</b>']);
+ body.innerHTML=tiles([
+  ['Limit set',lim+' MiB','memory.max = '+(lim*1048576)+' bytes',''],
+  ['Peak · limited',fx(a.report.peak_num,1)+' MiB',Math.round(a.report.peak_num/lim*100)+'% of the limit','lim'],
+  ['Peak · unlimited',fx(b.report.peak_num,1)+' MiB','×'+fx(b.report.peak_num/lim,1)+' the limit','unl'],
+  ['OOM kill events',fx(a.report.oom_num,0),'in memory.events (limited run)',killed?'bad':'ok'],
+  ['Time to kill',killed?fx(tk,2)+' s':'none',killed?'run ended by the kernel':'finished on its own',killed?'bad':'ok'],
+  ['Allocation speed',fx(max(rl),1)+' MiB/s','limited run, 0.5 s window','']])+
+ '<div id="rp"></div>'+
+ '<div class="grid">'+panel('c1')+'</div>'+
+ '<div class="grid g21"><div class="panel"><h3>Live view</h3><p class="sub">Follows the replay. Moves with the slider.</p>'+meterHTML('m1','Limited run',CL)+meterHTML('m2','Unlimited run',CU)+meterHTML('m3','Headroom left (limited)',CO)+'<h3 style="margin-top:16px">What happened</h3>'+'<div id="evs"></div></div>'+
+ '<div class="panel"><h3>Limit vs what the program wanted</h3><p class="sub">Peak memory per run.</p>'+hbars([['Limit (memory.max)',lim,'#9aa4b2',lim+' MiB'],['Limited run peak',a.report.peak_num,CL,fx(a.report.peak_num,1)+' MiB'],['Unlimited run peak',b.report.peak_num,CU,fx(b.report.peak_num,1)+' MiB']])+ring(lim/b.report.peak_num*100,CL,'Cap vs demand','The limit is this share of what the program tried to use.')+'</div></div>'+
+ '<div class="grid g2">'+panel('c2')+panel('c3')+'</div>'+
+ '<div class="grid g2"><div class="panel"><h3>Under the hood</h3><p class="sub">What the kernel does when memory runs out.</p><ol class="steps"><li>minibox writes the limit into <code>memory.max</code> before the program starts.</li><li>Every page the program touches is charged to the container’s cgroup (<code>memory.current</code>).</li><li>At the limit the kernel tries to reclaim memory; the program only allocates, so reclaim fails.</li><li>The OOM killer fires. Because <code>memory.oom.group</code> is 1 the whole container is killed together.</li><li>The event is counted in <code>memory.events</code>, which minibox reads for the report.</li></ol></div>'+
+ '<div class="panel"><h3>Files minibox uses</h3><p class="sub">Inside /sys/fs/cgroup/minibox/&lt;name&gt;</p>'+filesTable([['memory.max',(lim*1048576)+' (set)','Hard cap. Usage cannot pass it.'],['memory.current','read every 100 ms','Bytes in use right now. This is the memory column of the CSV.'],['memory.peak','read at the end','Highest usage seen. Report field “peak memory”.'],['memory.events','oom_kill field','How many OOM kill events happened.'],['memory.oom.group','1 (set)','Kill every process in the container, not just one.']])+'</div></div>'+
+  '<div class="panel"><h3>Runs on this page</h3>'+runTable(['mem_limited','mem_unlimited'])+'</div>';
+ var c1=Chart($('c1'),{title:'Memory usage over time',sub:'Hover for exact values. The dashed line is memory.max.',series:[{name:'Unlimited',color:CU,t:b.t,v:b.mem},{name:'Limited',color:CL,t:a.t,v:a.mem}],ref:{label:'limit '+lim+' MiB',fn:function(){return lim;}},unit:'MiB',unitShort:'MiB',dec:0,markers:killed?[{t:tk,label:'OOM kill '+fx(tk,1)+' s'}]:[]});
+ var c2=Chart($('c2'),{title:'Allocation speed',sub:'How fast usage grows (MiB per second, 0.5 s window).',H:280,series:[{name:'Unlimited',color:CU,t:b.t,v:ru,fill:false},{name:'Limited',color:CL,t:a.t,v:rl,fill:false}],unit:'MiB/s',unitShort:'MiB/s',dec:0,xmax:c1.xmax});
+ var hr=a.mem.map(function(v){return Math.max(0,lim-v);});
+ var c3=Chart($('c3'),{title:'Headroom before the limit',sub:'Limited run: MiB left until memory.max. Zero means the kernel steps in.',H:280,series:[{name:'Headroom',color:CO,t:a.t,v:hr}],unit:'MiB',unitShort:'MiB',dec:0,xmax:c1.xmax});
+ var ev=[{t:0,text:'Container starts. cgroup created, <code>memory.max</code> = '+lim+' MiB.',c:'#8b96a8'}];
+ var h50=firstAt({t:a.t,v:a.mem},lim*.5),h90=firstAt({t:a.t,v:a.mem},lim*.9);
+ if(h50!=null)ev.push({t:h50,text:'Limited run passes <b>50%</b> of its limit.',c:CL});
+ if(h90!=null)ev.push({t:h90,text:'Limited run passes <b>90%</b> of its limit. Reclaim starts to struggle.',c:CL});
+ if(killed)ev.push({t:tk,text:'<b>OOM kill.</b> The kernel kills the whole group ('+fx(a.report.oom_num,0)+' kill events).',c:CB});
+ ev.push({t:last(b.t),text:'Unlimited run ends at <b>'+fx(b.report.peak_num,0)+' MiB</b> with no kernel intervention.',c:CU});
+ ev.sort(function(x,y){return x.t-y.t;});$('evs').innerHTML=events(ev);
+ Replay($('rp'),c1.xmax,function(t){c1.setPhase(t);c2.setPhase(t);c3.setPhase(t);markEvents($('evs'),ev,t);var x=t==null?c1.xmax:t,va=valueAt(a.t,a.mem,x),vb=valueAt(b.t,b.mem,x);
+  setMeter('m1',va,Math.max(lim,b.report.peak_num),fx(va,1)+' / '+lim+' MiB');setMeter('m2',vb,Math.max(lim,b.report.peak_num),fx(vb,1)+' MiB');setMeter('m3',Math.max(0,lim-va),lim,fx(Math.max(0,lim-va),1)+' MiB');});
+}
+
+function pageProcesses(){
+ var a=RUN.fork_limited,b=RUN.fork_unlimited,lim=L.pids,pa=max(a.pids),pb=max(b.pids),den=a.report.pids_num||0;
+ var rl=rate(a,'pids',0.5).map(function(v){return Math.max(0,v);}),ru=rate(b,'pids',0.5).map(function(v){return Math.max(0,v);});
+ var tcap=firstAt({t:a.t,v:a.pids},lim);
+ var body=shell('Forks and processes','How many processes each run created, how the cap stops fork bombs, and which kernel files record it.',['limit <b>'+lim+' processes</b>','file <b>pids.max</b>']);
+ body.innerHTML=tiles([
+  ['Limit set',String(lim),'pids.max = '+lim,''],
+  ['Peak · limited',String(pa),'children created: '+Math.max(0,pa-1),'lim'],
+  ['Peak · unlimited',String(pb),'children created: '+Math.max(0,pb-1),'unl'],
+  ['Forks denied',fx(den,0),'pids.max hits (limited run)',den>0?'bad':'ok'],
+  ['Time to hit the cap',tcap!=null?fx(tcap,1)+' s':'never','first sample at '+lim+' processes',''],
+  ['Fork speed',fx(max(rl),0)+' /s','peak, limited run','']])+
+ '<div id="rp"></div><div class="grid">'+panel('c1')+'</div>'+
+ '<div class="grid g21"><div class="panel"><h3>Live view</h3><p class="sub">Follows the replay.</p>'+meterHTML('m1','Limited run',CL)+meterHTML('m2','Unlimited run',CU)+meterHTML('m3','Free process slots (limited)',CO)+'<h3 style="margin-top:16px">What happened</h3><div id="evs"></div></div>'+
+ '<div class="panel"><h3>Cap vs demand</h3><p class="sub">Most processes alive at once.</p>'+hbars([['Limit (pids.max)',lim,'#9aa4b2',String(lim)],['Limited run peak',pa,CL,String(pa)],['Unlimited run peak',pb,CU,String(pb)]])+ring(pb?pa/pb*100:0,CL,'Allowed vs wanted','The limited run got this share of the processes the program tried to create.')+'</div></div>'+
+ '<div class="grid g2">'+panel('c2')+panel('c3')+'</div>'+
+ '<div class="grid g2"><div class="panel"><h3>Under the hood</h3><p class="sub">Why a fork bomb cannot take down the machine.</p><ol class="steps"><li>minibox writes the cap into <code>pids.max</code> before the program starts.</li><li>Each fork() adds one task to <code>pids.current</code>.</li><li>At the cap, fork() fails with <b>EAGAIN</b> (“Resource temporarily unavailable”). Nothing is killed.</li><li>The failure is counted in <code>pids.events</code>; minibox shows it as “fork denied”.</li></ol></div>'+
+ '<div class="panel"><h3>Files minibox uses</h3><p class="sub">Inside /sys/fs/cgroup/minibox/&lt;name&gt;</p>'+filesTable([['pids.max',lim+' (set)','Maximum number of tasks in the container.'],['pids.current','read every 100 ms','Tasks alive now. The pids column of the CSV.'],['pids.events','max field','Counts how often fork was refused at the cap.']])+'</div></div>'+
+  '<div class="panel"><h3>Runs on this page</h3>'+runTable(['fork_limited','fork_unlimited'])+'</div>';
+ var c1=Chart($('c1'),{title:'Processes alive over time',sub:'Hover for exact values. The dashed line is pids.max.',step:true,series:[{name:'Unlimited',color:CU,t:b.t,v:b.pids},{name:'Limited',color:CL,t:a.t,v:a.pids}],ref:{label:'limit '+lim,fn:function(){return lim;}},unit:'processes',unitShort:'procs',dec:0,markers:(tcap!=null&&den>0)?[{t:tcap,label:'cap reached '+fx(tcap,1)+' s'}]:[]});
+ var c2=Chart($('c2'),{title:'Fork speed',sub:'New processes per second (0.5 s window).',H:280,series:[{name:'Unlimited',color:CU,t:b.t,v:ru,fill:false},{name:'Limited',color:CL,t:a.t,v:rl,fill:false}],unit:'per second',unitShort:'/s',dec:0,xmax:c1.xmax});
+ var fr=a.pids.map(function(v){return Math.max(0,lim-v);});
+ var c3=Chart($('c3'),{title:'Free process slots',sub:'Limited run: slots left before pids.max. Zero means fork is refused.',H:280,step:true,series:[{name:'Free slots',color:CO,t:a.t,v:fr}],unit:'slots',unitShort:'slots',dec:0,xmax:c1.xmax});
+ var ev=[{t:0,text:'Container starts. cgroup created, <code>pids.max</code> = '+lim+'.',c:'#8b96a8'}];
+ var f2=firstAt({t:a.t,v:a.pids},2);if(f2!=null)ev.push({t:f2,text:'First child process created.',c:CL});
+ if(tcap!=null)ev.push({t:tcap,text:'Process count reaches the cap of <b>'+lim+'</b>.',c:CL});
+ if(den>0)ev.push({t:tcap!=null?tcap:last(a.t),text:'<b>fork() refused</b> with EAGAIN ('+fx(den,0)+' time(s) in pids.events). Nothing is killed.',c:CB});
+ ev.push({t:last(b.t),text:'Unlimited run reached <b>'+pb+'</b> processes with no refusal.',c:CU});
+ ev.sort(function(x,y){return x.t-y.t;});$('evs').innerHTML=events(ev);
+ Replay($('rp'),c1.xmax,function(t){c1.setPhase(t);c2.setPhase(t);c3.setPhase(t);markEvents($('evs'),ev,t);var x=t==null?c1.xmax:t,va=valueAt(a.t,a.pids,x),vb=valueAt(b.t,b.pids,x),mx=Math.max(lim,pb);
+  setMeter('m1',va,mx,va+' / '+lim+' processes');setMeter('m2',vb,mx,vb+' processes');setMeter('m3',Math.max(0,lim-va),lim,Math.max(0,lim-va)+' slots');});
+}
+
+function pageCPU(){
+ var a=RUN.cpu_limited,b=RUN.cpu_unlimited,q=L.cpus;
+ var wa=a.report.wall_num||last(a.t),wb=b.report.wall_num||last(b.t),ca=a.report.cpu_num!=null?a.report.cpu_num:last(a.cpu),cb=b.report.cpu_num!=null?b.report.cpu_num:last(b.cpu);
+ var coresA=ca/wa,coresB=cb/wb,share=cb?ca/cb*100:0;
+ var ra=rate(a,'cpu',1),rb=rate(b,'cpu',1);
+ var body=shell('CPU usage','How much processor time each run got, how the kernel throttles a container, and which files record it.',['quota <b>'+q+' CPU</b>','file <b>cpu.max</b>']);
+ body.innerHTML=tiles([
+  ['Quota set',q+' CPU','cpu.max: '+Math.round(q*100000)+' µs per 100000 µs',''],
+  ['CPU used · limited',fx(ca,2)+' s','in '+fx(wa,1)+' s of wall time','lim'],
+  ['CPU used · unlimited',fx(cb,2)+' s','in '+fx(wb,1)+' s of wall time','unl'],
+  ['Average cores · limited',fx(coresA,2),'CPU seconds / wall seconds','lim'],
+  ['Average cores · unlimited',fx(coresB,2),'one busy thread = 1.0','unl'],
+  ['Share of unlimited',Math.round(share)+'%','limited / unlimited CPU time','']])+
+ '<div id="rp"></div><div class="grid">'+panel('c1')+'</div>'+
+ '<div class="grid g21"><div class="panel"><h3>Live view</h3><p class="sub">Follows the replay.</p>'+meterHTML('m1','Limited: CPU seconds used',CL)+meterHTML('m2','Unlimited: CPU seconds used',CU)+meterHTML('m3','Limited: cores in use now',CO)+'<h3 style="margin-top:16px">What happened</h3><div id="evs"></div></div>'+
+ '<div class="panel"><h3>Wall time vs CPU time</h3><p class="sub">Both runs lasted about the same. The limit changes how much CPU they got.</p>'+hbars([['Limited · wall',wa,'#59647a',fx(wa,2)+' s'],['Limited · CPU',ca,CL,fx(ca,2)+' s'],['Unlimited · wall',wb,'#59647a',fx(wb,2)+' s'],['Unlimited · CPU',cb,CU,fx(cb,2)+' s']])+ring(share,CL,'CPU share','Limited run’s CPU time as a share of the unlimited run.')+'</div></div>'+
+ '<div class="grid g2">'+panel('c2')+panel('c3')+'</div>'+
+ '<div class="grid g2"><div class="panel"><h3>Under the hood</h3><p class="sub">How half a core is enforced.</p><ol class="steps"><li>minibox writes a quota and period into <code>cpu.max</code> (here '+Math.round(q*100000)+' of every 100000 µs).</li><li>The scheduler counts the CPU time the container uses in each period.</li><li>When the quota is used up the container is <b>throttled</b>: its threads wait until the next period.</li><li>Averaged over time this gives '+q+' CPU. <code>usage_usec</code> in <code>cpu.stat</code> is the counter the CSV records.</li></ol></div>'+
+ '<div class="panel"><h3>Files minibox uses</h3><p class="sub">Inside /sys/fs/cgroup/minibox/&lt;name&gt;</p>'+filesTable([['cpu.max',Math.round(q*100000)+' 100000 (set)','Quota and period in microseconds. Quota ÷ period = CPUs allowed.'],['cpu.stat','usage_usec','Total CPU time used. The cpu_usec column of the CSV.'],['cpu.weight','set by --weight','Relative share when containers compete. Tested at 4:1.']])+'</div></div>'+
+  '<div class="panel"><h3>Runs on this page</h3>'+runTable(['cpu_limited','cpu_unlimited'])+'</div>';
+ var c1=Chart($('c1'),{title:'Cumulative CPU time',sub:'CPU seconds used so far. The slope is the CPU share; the dashed line is the 0.5 CPU target.',series:[{name:'Unlimited',color:CU,t:b.t,v:b.cpu},{name:'Limited',color:CL,t:a.t,v:a.cpu}],ref:{label:q+' CPU target',fn:function(t){return q*t;}},unit:'CPU seconds',unitShort:'s',dec:1});
+ var c2=Chart($('c2'),{title:'Cores in use',sub:'CPU seconds per wall second (1 s window). 1.0 = one core fully busy.',H:280,series:[{name:'Unlimited',color:CU,t:b.t,v:rb,fill:false},{name:'Limited',color:CL,t:a.t,v:ra,fill:false}],ref:{label:'quota '+q,fn:function(){return q;}},ymax:1.2,unit:'cores',unitShort:'cores',dec:1,xmax:c1.xmax});
+ var gap=a.t.map(function(t,i){return Math.max(0,valueAt(b.t,b.cpu,t)-a.cpu[i]);});
+ var c3=Chart($('c3'),{title:'CPU time withheld',sub:'How many CPU seconds less the limited run has had than the unlimited run at the same moment.',H:280,series:[{name:'Difference',color:'#b48cff',t:a.t,v:gap}],unit:'CPU seconds',unitShort:'s',dec:1,xmax:c1.xmax});
+ var ev=[{t:0,text:'Container starts. <code>cpu.max</code> = '+Math.round(q*100000)+' 100000.',c:'#8b96a8'}];
+ var a1=firstAt({t:a.t,v:a.cpu},1),b1=firstAt({t:b.t,v:b.cpu},1);
+ if(b1!=null)ev.push({t:b1,text:'Unlimited run has used <b>1.0</b> CPU second.',c:CU});
+ if(a1!=null)ev.push({t:a1,text:'Limited run reaches <b>1.0</b> CPU second, later because it is throttled.',c:CL});
+ ev.push({t:Math.min(wb,last(b.t)),text:'Unlimited run ends: <b>'+fx(cb,2)+' s</b> CPU in '+fx(wb,1)+' s.',c:CU});
+ ev.push({t:Math.min(wa,last(a.t)),text:'Limited run ends: <b>'+fx(ca,2)+' s</b> CPU in '+fx(wa,1)+' s.',c:CL});
+ ev.sort(function(x,y){return x.t-y.t;});$('evs').innerHTML=events(ev);
+ Replay($('rp'),c1.xmax,function(t){c1.setPhase(t);c2.setPhase(t);c3.setPhase(t);markEvents($('evs'),ev,t);var x=t==null?c1.xmax:t,va=valueAt(a.t,a.cpu,x),vb=valueAt(b.t,b.cpu,x),mx=Math.max(ca,cb)||1,rr=valueAt(a.t,ra,x);
+  setMeter('m1',va,mx,fx(va,2)+' s');setMeter('m2',vb,mx,fx(vb,2)+' s');setMeter('m3',rr,1,fx(rr,2)+' cores');});
+}
+
+function pageRuns(){
+ var names=['mem_limited','mem_unlimited','fork_limited','fork_unlimited','cpu_limited','cpu_unlimited'];
+ var body=shell('All runs','Every measured run with its exit reason, totals and the raw report minibox printed.',['<b>6</b> runs','sample every <b>100 ms</b>']);
+ var h='<div class="panel" style="margin-bottom:16px"><h3>Comparison</h3><p class="sub">Orange = limited, blue = unlimited.</p>'+runTable(names)+'</div><div class="grid g2">';
+ names.forEach(function(n){var r=RUN[n];h+='<div class="panel"><h3>'+esc(n)+' <span class="tag '+(/_limited$/.test(n)?'l':'u')+'">'+(/_limited$/.test(n)?'limited':'unlimited')+'</span></h3><p class="sub">'+r.t.length+' samples over '+fx(last(r.t),1)+' s · results/minibox-'+esc(n)+'.csv</p><details open><summary>Raw report</summary><pre>'+esc(r.report.raw)+'</pre></details></div>';});
+ body.innerHTML=h+'</div>';
+}
+
+({index:pageOverview,memory:pageMemory,processes:pageProcesses,cpu:pageCPU,runs:pageRuns}[PAGE]||pageOverview)();
+})();
+</script></body></html>

@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>minibox dashboard</title>
+<style>
+:root{color-scheme:dark;--bg:#0a0f1e;--panel:#111a33;--panel2:#16213f;--line:#243055;--text:#e9edf9;--muted:#8f9cc3;--lim:#ff8a4c;--unl:#4da3ff;--good:#34d399;--bad:#fb7185;--ref:#cbd5f5}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--text);
+background:radial-gradient(900px 500px at 12% -8%,#1b2a5c 0,rgba(10,15,30,0) 60%),radial-gradient(700px 400px at 100% 0,#2a1b4d 0,rgba(10,15,30,0) 55%),var(--bg)}
+.wrap{max-width:1160px;margin:0 auto;padding:32px 20px 28px}
+.eyebrow{font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--unl)}
+h1{font-size:clamp(26px,4vw,40px);margin:10px 0 8px;letter-spacing:-.02em}
+.sub{color:var(--muted);max-width:780px;line-height:1.55;margin:0 0 24px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:22px}
+.card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.card .k{color:var(--muted);font-size:13px}
+.card .big{font-size:34px;font-weight:700;margin:6px 0 4px;letter-spacing:-.02em}
+.card .s{color:var(--muted);font-size:13px;line-height:1.4}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:22px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tabs button{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font:inherit;font-weight:600;cursor:pointer}
+.tabs button:hover{color:var(--text)}
+.tabs button.on{background:var(--unl);border-color:var(--unl);color:#06101f}
+.finding{font-size:18px;font-weight:600;line-height:1.4;margin:0 0 6px}
+.how{color:var(--muted);font-size:14px;line-height:1.5;margin:0 0 12px}
+.chartwrap{position:relative}
+svg{display:block;width:100%;height:auto}
+.gl{stroke:#1d2950;stroke-width:1}
+.ax{fill:var(--muted);font-size:12px}
+.axl{stroke:#34426f;stroke-width:1}
+.ref{stroke:var(--ref);stroke-width:1.5;stroke-dasharray:6 5;fill:none}
+.reft{fill:var(--ref);font-size:12px}
+.ll{fill:none;stroke:var(--lim);stroke-width:2.6;stroke-linejoin:round}
+.lu{fill:none;stroke:var(--unl);stroke-width:2.6;stroke-linejoin:round}
+.al{fill:var(--lim);opacity:.12}.au{fill:var(--unl);opacity:.12}
+.cur{stroke:#6c7bad;stroke-width:1;stroke-dasharray:3 4}
+.tip{position:absolute;top:8px;pointer-events:none;background:#0b1226;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;min-width:180px;display:none;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.tip .r{display:flex;align-items:center;gap:8px;margin-top:4px}
+.tip i,.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.tip .r b{margin-left:auto}
+.ctl{display:flex;align-items:center;gap:12px;margin:10px 0 14px}
+.ctl button{background:var(--unl);color:#06101f;border:0;border-radius:10px;padding:9px 16px;font:inherit;font-weight:700;cursor:pointer}
+.ctl button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.ctl input{flex:1;accent-color:var(--unl)}
+.live{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.lv{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--panel2)}
+.lv .k{display:flex;align-items:center;gap:8px;font-weight:600}
+.lv .v{font-size:28px;font-weight:700;margin:6px 0 2px}
+.lv .u{color:var(--muted);font-size:13px}
+.chip{margin-left:auto;font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 8px}
+.st{font-size:14px;font-weight:600;margin-top:6px}
+.good{color:var(--good)}.bad{color:var(--bad)}
+h2{font-size:20px;margin:0 0 12px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:760px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+tr:last-child td{border-bottom:0}
+.b{display:inline-block;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700}
+.b.good{background:rgba(52,211,153,.14)}.b.bad{background:rgba(251,113,133,.16)}
+.tag{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px}
+footer{color:var(--muted);font-size:13px;line-height:1.6;border-top:1px solid var(--line);padding-top:16px}
+</style></head><body><div class="wrap">
+<div class="eyebrow">minibox &middot; mini container runtime</div>
+<h1>Lightweight Linux Sandbox with Resource Isolation &amp; Monitoring</h1>
+<p class="sub">The same workload runs twice: once inside a container with a limit, once with none. The limits are enforced by the Linux kernel (namespaces and cgroups v2), and everything below is measured from those runs.</p>
+<div class="cards" id="cards"></div>
+<div class="panel">
+ <div class="tabs" id="tabs" role="tablist"></div>
+ <p class="finding" id="finding"></p>
+ <p class="how" id="how"></p>
+ <div class="chartwrap" id="cw"><svg id="svg" viewBox="0 0 900 400" role="img" aria-label="Limited versus unlimited run"></svg><div class="tip" id="tip"></div></div>
+ <div class="ctl"><button id="play">&#9654; Replay</button><input type="range" id="slider" min="0" max="1000" value="1000" aria-label="Scrub through the run"><button class="ghost" id="all">Show all</button></div>
+ <div class="live" id="live"></div>
+</div>
+<div class="panel"><h2>All six runs</h2><div class="tw"><table id="tbl"></table></div></div>
+<footer>Vandana B (23BIT0355) · Jashni G (24BIT0001) · VIT Vellore<br>Data: results/*.csv and results/*.txt, written by minibox on every run. &ldquo;OOM kill events&rdquo; counts events in memory.events, not separate processes.</footer>
+</div>
+<script type="application/json" id="data">{"runs":{"mem_limited":{"t":[0.027,0.128,0.228,0.329,0.429,0.53,0.63,0.731,0.831,0.931,1.032,1.132,1.233,1.333,1.433,1.534,1.634,1.735,1.835,1.935,2.036,2.136,2.236,2.337,2.437,2.538,2.638,2.738,2.839,2.939,3.04,3.14,3.24,3.341],"mem":[0.25,2.379,4.379,6.379,8.379,10.379,12.379,14.379,16.379,18.379,20.379,22.379,23.379,25.379,27.379,29.379,31.379,33.379,35.379,37.379,39.379,41.379,42.379,44.379,46.629,48.629,50.629,52.629,54.629,56.629,58.629,60.629,61.629,63.629],"pids":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"cpu":[0.0,0.006,0.011,0.016,0.02,0.025,0.029,0.033,0.037,0.041,0.045,0.049,0.052,0.057,0.063,0.068,0.075,0.08,0.085,0.09,0.095,0.101,0.104,0.109,0.114,0.12,0.125,0.131,0.136,0.142,0.147,0.152,0.156,0.161],"report":{"exit":"KILLED BY OOM (memory limit hit)","wall_num":3.44,"cpu_num":0.19,"peak_num":64.0,"oom_num":2.0,"pids_num":0.0}},"mem_unlimited":{"t":[0.032,0.133,0.233,0.334,0.434,0.535,0.635,0.736,0.836,0.937,1.037,1.138,1.238,1.338,1.439,1.539,1.639,1.74,1.84,1.94,2.041,2.141,2.241,2.342,2.442,2.543,2.643,2.744,2.844,2.944,3.045,3.145,3.246,3.346,3.446,3.547,3.647,3.748,3.848,3.948,4.049,4.149,4.25,4.35,4.45,4.551,4.651,4.752,4.852,4.953,5.053,5.154,5.254,5.354,5.455,5.555,5.656,5.756,5.856,5.957,6.057,6.158,6.258,6.358,6.459,6.559,6.66,6.76,6.861,6.961,7.062,7.162,7.263,7.363,7.463,7.564,7.664,7.765,7.865,7.965,8.066,8.166,8.267,8.367,8.467,8.568,8.668,8.768,8.869,8.97,9.07,9.17,9.271,9.371,9.472,9.572,9.673,9.773,9.874,9.974,10.074,10.175,10.275,10.376,10.476,10.577,10.677,10.777,10.878,10.978,11.079,11.179,11.279,11.38,11.481,11.581,11.682,11.782,11.882,11.983,12.083,12.183,12.284,12.384,12.485,12.585,12.686,12.786,12.886,12.987,13.087,13.188,13.288,13.388,13.489,13.589,13.69,13.79,13.89,13.991,14.091,14.191,14.292,14.392,14.493,14.593,14.693,14.794,14.894,14.995,15.095,15.195,15.296,15.396,15.496,15.597,15.697,15.797,15.898,15.998,16.099,16.199,16.3,16.4,16.501,16.601,16.701,16.802,16.902,17.003,17.103,17.203,17.304,17.405,17.505,17.606,17.706,17.807,17.907,18.008,18.108,18.208,18.309,18.409,18.51,18.61,18.711,18.811,18.911,19.012,19.112,19.213,19.313,19.414,19.514,19.614,19.715,19.815,19.916,20.016,20.117,20.217,20.318,20.418,20.519,20.619,20.719,20.82,20.92,21.021],"mem":[0.25,2.387,4.387,6.387,8.387,10.387,12.387,14.387,16.387,18.387,20.387,22.387,24.387,25.387,27.387,29.387,31.387,33.387,35.387,37.387,39.387,41.387,43.387,45.637,46.637,48.637,50.637,52.637,54.637,56.637,58.637,60.637,62.637,64.637,66.637,68.387,69.637,71.637,73.637,75.637,77.637,79.637,81.637,83.637,85.637,86.637,88.887,90.887,92.887,94.887,96.887,98.887,100.637,101.887,103.887,105.887,107.887,109.887,111.887,113.887,114.887,116.887,118.887,120.887,122.887,124.887,126.887,128.887,130.887,132.137,134.137,136.137,138.137,140.137,142.137,144.137,146.137,148.137,149.137,151.137,153.137,155.137,157.137,159.137,161.137,163.137,165.137,166.137,168.137,170.137,172.137,174.387,176.387,178.387,180.387,182.387,183.387,185.387,187.387,189.387,191.387,193.387,195.387,197.387,199.387,200.387,202.387,204.387,206.387,208.387,210.387,212.387,214.387,216.637,217.637,219.637,221.637,223.637,225.637,227.637,229.637,230.637,232.637,234.637,236.637,238.637,240.637,242.637,244.637,246.637,247.637,249.637,251.637,253.637,255.637,257.637,259.887,261.887,263.387,264.887,266.887,268.887,270.887,272.887,274.887,276.887,278.887,280.137,281.887,283.887,285.887,287.887,289.887,291.887,293.887,295.887,296.887,298.887,300.887,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,302.137,187.203],"pids":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"cpu":[0.0,0.006,0.01,0.015,0.018,0.022,0.026,0.031,0.034,0.038,0.042,0.046,0.052,0.055,0.06,0.064,0.068,0.071,0.075,0.081,0.085,0.09,0.096,0.101,0.104,0.11,0.116,0.123,0.129,0.134,0.137,0.141,0.144,0.148,0.151,0.153,0.157,0.163,0.168,0.174,0.18,0.185,0.191,0.199,0.205,0.208,0.214,0.221,0.228,0.235,0.244,0.251,0.254,0.261,0.27,0.277,0.283,0.29,0.298,0.304,0.307,0.314,0.32,0.328,0.336,0.342,0.348,0.353,0.358,0.363,0.369,0.375,0.381,0.387,0.393,0.398,0.404,0.41,0.413,0.419,0.424,0.431,0.437,0.444,0.45,0.455,0.461,0.464,0.47,0.475,0.482,0.488,0.493,0.499,0.505,0.511,0.514,0.52,0.526,0.532,0.539,0.545,0.551,0.557,0.562,0.566,0.572,0.578,0.584,0.59,0.596,0.603,0.609,0.614,0.617,0.632,0.638,0.644,0.651,0.657,0.663,0.666,0.672,0.678,0.684,0.69,0.696,0.701,0.709,0.717,0.719,0.726,0.732,0.737,0.744,0.752,0.757,0.763,0.766,0.772,0.778,0.784,0.791,0.797,0.803,0.808,0.814,0.817,0.824,0.83,0.836,0.842,0.85,0.856,0.862,0.867,0.872,0.877,0.883,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.886,0.94],"report":{"exit":"exited normally, code 0","wall_num":21.12,"cpu_num":1.01,"peak_num":302.14,"oom_num":0.0,"pids_num":0.0}},"fork_limited":{"t":[0.035,0.136,0.237,0.337,0.438,0.538,0.639,0.74,0.84,0.941,1.041,1.141,1.242,1.342,1.443,1.543,1.644,1.744,1.845,1.945,2.046,2.146,2.246,2.348,2.448,2.549,2.649,2.75,2.85,2.951,3.051,3.152,3.252,3.353,3.453,3.554,3.654,3.754,3.855,3.955,4.056,4.156,4.257,4.357,4.458,4.558,4.658,4.759,4.859,4.96,5.06,5.161,5.261,5.361,5.462,5.562,5.663,5.763,5.864,5.964,6.064,6.165,6.265,6.366,6.466,6.567,6.667,6.768,6.868,6.969,7.069,7.17,7.27,7.371,7.471,7.572,7.672,7.772,7.873,7.973,8.073,8.174,8.274,8.375,8.475,8.576,8.676,8.777,8.877,8.977,9.078,9.178,9.279,9.379,9.48,9.58,9.68,9.781,9.881,9.982],"mem":[0.25,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,3.203,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.961,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949,2.949],"pids":[1,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20],"cpu":[0.0,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013,0.013],"report":{"exit":"exited normally, code 0","wall_num":10.08,"cpu_num":0.02,"peak_num":3.55,"oom_num":0.0,"pids_num":1.0}},"fork_unlimited":{"t":[0.03,0.131,0.231,0.332,0.432,0.532,0.633,0.733,0.833,0.934,1.034,1.135,1.235,1.335,1.436,1.536,1.637,1.737,1.837,1.938,2.038,2.139,2.239,2.339,2.44,2.54,2.641,2.741,2.842,2.942,3.042,3.143,3.243,3.343,3.444,3.544,3.645,3.745,3.845,3.946,4.046,4.147,4.247,4.348,4.448,4.549,4.649,4.749,4.85,4.95,5.051,5.151,5.252,5.352,5.453,5.553,5.654,5.754,5.855,5.955,6.056,6.156,6.257,6.357,6.457,6.558,6.659,6.759,6.859,6.96,7.06,7.161,7.261,7.362,7.462,7.563,7.663,7.763,7.864,7.964,8.064,8.165,8.265,8.366,8.466,8.566,8.667,8.767,8.868,8.968,9.068,9.169,9.269,9.369,9.47,9.571,9.671,9.771,9.872,9.973,10.073],"mem":[0.25,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.48,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.316,9.145,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,8.988,5.746],"pids":[1,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,33],"cpu":[0.0,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.104],"report":{"exit":"exited normally, code 0","wall_num":10.17,"cpu_num":0.12,"peak_num":9.66,"oom_num":0.0,"pids_num":0.0}},"cpu_limited":{"t":[0.053,0.154,0.254,0.354,0.455,0.555,0.656,0.756,0.857,0.957,1.057,1.158,1.258,1.359,1.459,1.559,1.66,1.76,1.86,1.961,2.061,2.162,2.262,2.362,2.463,2.563,2.663,2.764,2.864,2.965,3.065,3.165,3.266,3.366,3.467,3.567,3.667,3.768,3.868,3.968,4.069,4.169,4.27,4.37,4.47,4.571,4.671,4.771,4.872,4.972,5.073],"mem":[0.25,2.898,2.898,2.898,2.898,2.898,2.898,2.898,2.898,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609,2.609],"pids":[1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],"cpu":[0.0,0.064,0.114,0.164,0.215,0.265,0.315,0.365,0.419,0.469,0.519,0.57,0.616,0.666,0.716,0.766,0.815,0.87,0.92,0.97,1.02,1.071,1.121,1.171,1.221,1.271,1.321,1.371,1.421,1.476,1.526,1.576,1.626,1.676,1.726,1.776,1.826,1.876,1.926,1.981,2.031,2.081,2.131,2.181,2.231,2.282,2.332,2.378,2.428,2.483,2.533],"report":{"exit":"exited normally, code 0","wall_num":5.17,"cpu_num":2.55,"peak_num":3.0,"oom_num":0.0,"pids_num":0.0}},"cpu_unlimited":{"t":[0.025,0.126,0.226,0.327,0.427,0.528,0.628,0.728,0.829,0.929,1.029,1.13,1.23,1.331,1.431,1.531,1.632,1.732,1.832,1.933,2.033,2.134,2.234,2.335,2.435,2.536,2.636,2.736,2.837,2.937,3.038,3.138,3.239,3.339,3.439,3.54,3.64,3.74,3.841,3.942,4.042,4.142,4.243,4.343,4.443,4.544,4.644,4.745,4.846,4.946],"mem":[0.25,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812,0.812],"pids":[1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],"cpu":[0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.804,0.904,1.004,1.104,1.204,1.304,1.404,1.504,1.604,1.704,1.804,1.908,2.008,2.108,2.208,2.308,2.408,2.508,2.608,2.708,2.812,2.912,3.012,3.112,3.212,3.312,3.412,3.512,3.612,3.716,3.816,3.916,4.016,4.116,4.216,4.316,4.416,4.516,4.616,4.72,4.82,4.92],"report":{"exit":"exited normally, code 0","wall_num":5.05,"cpu_num":5.01,"peak_num":1.01,"oom_num":0.0,"pids_num":0.0}}},"order":["mem_limited","mem_unlimited","fork_limited","fork_unlimited","cpu_limited","cpu_unlimited"],"limits":{"mem_mib":64,"pids":20,"cpus":0.5}}</script>
+<script>
+(function(){
+var D=JSON.parse(document.getElementById('data').textContent);
+var RUNS=D.runs, L=D.limits;
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function max(a){var m=0;for(var i=0;i<a.length;i++)if(a[i]>m)m=a[i];return m;}
+function last(a){return a.length?a[a.length-1]:0;}
+function fx(v,d){return (v==null||isNaN(v))?'?':v.toFixed(d);}
+function get(p,k){return RUNS[p+'_'+k];}
+
+var M={
+ mem:{tab:'Memory',key:'mem',unit:'MiB',dec:1,axis:'memory (MiB)',limit:function(t){return L.mem_mib;},
+  limLabel:'limit '+L.mem_mib+' MiB',chipL:L.mem_mib+' MiB limit',lab:'peak memory',
+  how:"memory.max is set on the container's cgroup. When the program asks for more than the limit, the kernel's OOM killer ends it.",
+  find:function(){var a=get('mem','limited'),b=get('mem','unlimited');var killed=/OOM/i.test(a.report.exit);
+   return 'The limited run hit the '+L.mem_mib+' MiB limit'+(killed?' and was killed by the kernel after '+fx(a.report.wall_num,1)+' s':'')+'. The unlimited run grew to '+fx(b.report.peak_num,1)+' MiB.';}},
+ fork:{tab:'Processes',key:'pids',unit:'',dec:0,axis:'processes',limit:function(t){return L.pids;},
+  limLabel:'limit '+L.pids,chipL:L.pids+' process limit',lab:'peak processes',
+  how:"pids.max is set on the cgroup. Once the container has that many processes, fork() fails with \u201cResource temporarily unavailable\u201d.",
+  find:function(){var a=get('fork','limited'),b=get('fork','unlimited');
+   return 'The limited run was held at '+max(a.pids)+' processes (limit '+L.pids+') and fork was refused '+fx(a.report.pids_num,0)+' time(s). The unlimited run reached '+max(b.pids)+'.';}},
+ cpu:{tab:'CPU',key:'cpu',unit:'s',dec:2,axis:'CPU seconds used',limit:function(t){return L.cpus*t;},
+  limLabel:L.cpus+' CPU target',chipL:L.cpus+' CPU limit',lab:'CPU time used',
+  how:"cpu.max is set to a quota of half a core per period, so the kernel throttles the group. The steeper the line, the bigger its share of the CPU.",
+  find:function(){var a=get('cpu','limited'),b=get('cpu','unlimited');
+   return 'Over about '+fx(a.report.wall_num,0)+' s the limited run used '+fx(a.report.cpu_num,2)+' s of CPU, '+Math.round(a.report.cpu_num/b.report.cpu_num*100)+'% of the '+fx(b.report.cpu_num,2)+' s used with no limit.';}}
+};
+var KEYS=['mem','fork','cpu'];
+
+// ---------- summary cards ----------
+(function(){
+ var ml=get('mem','limited'),mu=get('mem','unlimited'),fl=get('fork','limited'),fu=get('fork','unlimited'),cl=get('cpu','limited'),cu=get('cpu','unlimited');
+ var cards=[
+  ['Memory cap',fx(ml.report.peak_num,0)+' MiB','Unlimited run reached '+fx(mu.report.peak_num,0)+' MiB ('+fx(mu.report.peak_num/ml.report.peak_num,1)+'\u00d7 more)'],
+  ['Process cap',String(max(fl.pids)),'Unlimited run reached '+max(fu.pids)+' processes'],
+  ['CPU share',Math.round(cl.report.cpu_num/cu.report.cpu_num*100)+'%','of the unlimited run\u2019s CPU time ('+fx(cl.report.cpu_num,2)+' s vs '+fx(cu.report.cpu_num,2)+' s)']
+ ];
+ $('cards').innerHTML=cards.map(function(c){return '<div class="card"><div class="k">'+esc(c[0])+'</div><div class="big">'+esc(c[1])+'</div><div class="s">'+esc(c[2])+'</div></div>';}).join('');
+})();
+
+// ---------- chart ----------
+var cur='mem', ph=null, hov=null, raf=0, mouseX=0;
+var G={W:900,H:400,ml:56,mr:24,mt:22,mb:44};
+function series(kind){var r=get(cur,kind);return {t:r.t,v:r[M[cur].key],rep:r.report};}
+function xmax(){var a=series('limited'),b=series('unlimited');return Math.max(last(a.t),last(b.t))||1;}
+function nice(maxv,n){var s0=maxv/n,mag=Math.pow(10,Math.floor(Math.log10(s0))),nm=s0/mag;
+ var step=(nm<=1?1:nm<=2?2:nm<=5?5:10)*mag,t=[],v=0,i=0;for(;i<40;i++){t.push(+v.toFixed(10));if(v>=maxv)break;v+=step;}return {t:t,step:step};}
+function valueAt(s,t){var n=s.t.length;if(!n)return null;if(t>=s.t[n-1])return {v:s.v[n-1],ended:true};
+ var i=0;while(i+1<n&&s.t[i+1]<=t)i++;return {v:s.v[i],ended:false};}
+function fmt(m,v){return fx(v,m.dec)+(m.unit?' '+m.unit:'');}
+
+function draw(){
+ var m=M[cur],g=G,pw=g.W-g.ml-g.mr,phh=g.H-g.mt-g.mb;
+ var A=series('limited'),B=series('unlimited'),xM=xmax();
+ var yM=Math.max(max(A.v),max(B.v),m.limit(xM))*1.06||1;
+ var ty=nice(yM,5),yT=last(ty.t)||1;
+ function X(t){return g.ml+t/xM*pw;} function Y(v){return g.mt+phh-v/yT*phh;}
+ function cnt(s){if(ph==null)return s.t.length;var n=0;while(n<s.t.length&&s.t[n]<=ph)n++;return n;}
+ function pts(s,n){var a=[];for(var i=0;i<n;i++)a.push(X(s.t[i]).toFixed(1)+' '+Y(s.v[i]).toFixed(1));return a;}
+ function line(a){return a.length?'M'+a.join('L'):'';}
+ function area(a){if(!a.length)return '';return 'M'+a.join('L')+'L'+a[a.length-1].split(' ')[0]+' '+Y(0).toFixed(1)+'L'+a[0].split(' ')[0]+' '+Y(0).toFixed(1)+'Z';}
+ var s='';
+ for(var i=0;i<ty.t.length;i++){var yy=Y(ty.t[i]).toFixed(1);
+  s+='<line class="gl" x1="'+g.ml+'" x2="'+(g.W-g.mr)+'" y1="'+yy+'" y2="'+yy+'"/><text class="ax" x="'+(g.ml-8)+'" y="'+(+yy+4)+'" text-anchor="end">'+(m.dec?ty.t[i].toFixed(m.dec>1?1:0):ty.t[i])+'</text>';}
+ var tx=nice(xM,6).t;
+ for(i=0;i<tx.length;i++){if(tx[i]>xM+1e-9)continue;var xx=X(tx[i]).toFixed(1);
+  s+='<text class="ax" x="'+xx+'" y="'+(g.H-g.mb+20)+'" text-anchor="middle">'+tx[i]+'</text>';}
+ s+='<line class="axl" x1="'+g.ml+'" x2="'+(g.W-g.mr)+'" y1="'+Y(0)+'" y2="'+Y(0)+'"/>';
+ s+='<text class="ax" x="'+(g.ml+pw/2)+'" y="'+(g.H-6)+'" text-anchor="middle">time (s)</text>';
+ s+='<text class="ax" x="'+g.ml+'" y="12" text-anchor="start">'+esc(m.axis)+'</text>';
+ var nA=cnt(A),nB=cnt(B),pa=pts(A,nA),pb=pts(B,nB);
+ s+='<path class="au" d="'+area(pb)+'"/><path class="al" d="'+area(pa)+'"/>';
+ s+='<path class="ref" d="M'+X(0).toFixed(1)+' '+Y(m.limit(0)).toFixed(1)+'L'+X(xM).toFixed(1)+' '+Y(m.limit(xM)).toFixed(1)+'"/>';
+ s+='<text class="reft" x="'+(g.W-g.mr-4)+'" y="'+(Y(m.limit(xM))-8).toFixed(1)+'" text-anchor="end">'+esc(m.limLabel)+'</text>';
+ s+='<path class="lu" d="'+line(pb)+'"/><path class="ll" d="'+line(pa)+'"/>';
+ function dot(a,col){if(!a.length)return '';var p=a[a.length-1].split(' ');return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="5" fill="'+col+'"/>';}
+ if(ph!=null){s+='<line class="cur" x1="'+X(ph).toFixed(1)+'" x2="'+X(ph).toFixed(1)+'" y1="'+g.mt+'" y2="'+(g.mt+phh)+'"/>'+dot(pb,'#4da3ff')+dot(pa,'#ff8a4c');}
+ if(hov!=null){s+='<line class="cur" x1="'+X(hov).toFixed(1)+'" x2="'+X(hov).toFixed(1)+'" y1="'+g.mt+'" y2="'+(g.mt+phh)+'"/>';}
+ $('svg').innerHTML=s;
+ tip(m,A,B);
+}
+function tip(m,A,B){
+ var el=$('tip');
+ if(hov==null){el.style.display='none';return;}
+ var a=valueAt(A,hov),b=valueAt(B,hov);
+ function row(col,name,x,s){return '<div class="r"><i style="background:'+col+'"></i>'+name+'<b>'+(x?(x.ended?esc(shortExit(s.rep.exit)):fmt(m,x.v)):'-')+'</b></div>';}
+ el.innerHTML='<b>t = '+hov.toFixed(1)+' s</b>'+row('#ff8a4c','Limited',a,A)+row('#4da3ff','Unlimited',b,B);
+ el.style.display='block';
+ var w=$('cw').clientWidth,left=mouseX+16;if(left>w-200)left=mouseX-196;if(left<0)left=0;el.style.left=left+'px';
+}
+function shortExit(e){if(/OOM/i.test(e))return 'killed by OOM';if(/exited normally/i.test(e))return 'finished';return e;}
+
+// ---------- live cards ----------
+function live(){
+ var m=M[cur],h='';
+ ['limited','unlimited'].forEach(function(k){
+  var s=series(k),col=k==='limited'?'#ff8a4c':'#4da3ff',v,lab,ended,st;
+  if(ph==null){v=(m.key==='cpu')?last(s.v):(m.key==='mem'&&s.rep.peak_num!=null)?s.rep.peak_num:max(s.v);lab=m.lab;ended=true;}
+  else{var x=valueAt(s,ph);v=x.v;ended=x.ended;lab='now';}
+  if(ended){var bad=/OOM|signal/i.test(s.rep.exit);st='<div class="st '+(bad?'bad':'good')+'">'+esc(/OOM/i.test(s.rep.exit)?'Killed by OOM (memory limit hit)':/exited normally/i.test(s.rep.exit)?'Finished normally':s.rep.exit)+'</div>';
+   if(cur==='fork'&&k==='limited'&&s.rep.pids_num>0)st+='<div class="u">fork refused '+fx(s.rep.pids_num,0)+' time(s)</div>';}
+  else st='<div class="st" style="color:var(--muted)">Running\u2026</div>';
+  h+='<div class="lv"><div class="k"><span class="dot" style="background:'+col+'"></span>'+(k==='limited'?'Limited':'Unlimited')+'<span class="chip">'+esc(k==='limited'?m.chipL:'no limit')+'</span></div><div class="v">'+fmt(m,v)+'</div><div class="u">'+esc(lab)+'</div>'+st+'</div>';
+ });
+ $('live').innerHTML=h;
+}
+
+function render(){draw();live();}
+function stop(){cancelAnimationFrame(raf);$('play').innerHTML='&#9654; Replay';}
+function setTab(k){cur=k;ph=null;hov=null;stop();$('slider').value=1000;
+ var m=M[k];$('finding').textContent=m.find();$('how').textContent=m.how;
+ var bs=$('tabs').children;for(var i=0;i<bs.length;i++)bs[i].className=(bs[i].getAttribute('data-k')===k)?'on':'';
+ render();}
+function replay(){stop();var xM=xmax(),t0=performance.now(),dur=8000;hov=null;
+ $('play').textContent='Replaying\u2026';
+ function step(now){var p=Math.min(1,(now-t0)/dur);ph=p*xM;$('slider').value=Math.round(p*1000);render();
+  if(p<1)raf=requestAnimationFrame(step);else $('play').innerHTML='&#9654; Replay';}
+ raf=requestAnimationFrame(step);}
+
+$('tabs').innerHTML=KEYS.map(function(k){return '<button role="tab" data-k="'+k+'">'+M[k].tab+'</button>';}).join('');
+$('tabs').addEventListener('click',function(e){var k=e.target.getAttribute&&e.target.getAttribute('data-k');if(k)setTab(k);});
+$('play').addEventListener('click',replay);
+$('all').addEventListener('click',function(){stop();ph=null;$('slider').value=1000;render();});
+$('slider').addEventListener('input',function(){stop();var v=+this.value;ph=(v>=1000)?null:v/1000*xmax();render();});
+var cw=$('cw');
+cw.addEventListener('mousemove',function(e){
+ var r=$('svg').getBoundingClientRect(),x=(e.clientX-r.left)/r.width*G.W,pw=G.W-G.ml-G.mr,t=(x-G.ml)/pw*xmax();
+ mouseX=e.clientX-cw.getBoundingClientRect().left;
+ hov=Math.max(0,Math.min(xmax(),t));draw();});
+cw.addEventListener('mouseleave',function(){hov=null;draw();});
+
+// ---------- table ----------
+function limitText(n){var p=n.split('_')[0],k=n.split('_')[1];if(k!=='limited')return 'none';return p==='mem'?L.mem_mib+' MiB':p==='fork'?L.pids+' processes':L.cpus+' CPU';}
+var rows=D.order.map(function(n){var r=RUNS[n].report,lim=n.indexOf('_limited')>0,bad=/OOM|signal/i.test(r.exit);
+ return '<tr><td><span class="tag" style="background:'+(lim?'#ff8a4c':'#4da3ff')+'"></span>'+esc(n)+'</td><td>'+esc(limitText(n))+'</td><td><span class="b '+(bad?'bad':'good')+'">'+esc(shortExit(r.exit).replace(/^./,function(c){return c.toUpperCase();}))+'</span></td><td>'+fx(r.wall_num,2)+' s</td><td>'+fx(r.cpu_num,2)+' s</td><td>'+fx(r.peak_num,2)+' MiB</td><td>'+fx(r.oom_num,0)+'</td><td>'+fx(r.pids_num,0)+'</td></tr>';}).join('');
+$('tbl').innerHTML='<tr><th>Run</th><th>Limit</th><th>Exit reason</th><th>Wall time</th><th>CPU time</th><th>Peak memory</th><th>OOM kill events</th><th>pids.max hits</th></tr>'+rows;
+
+setTab('mem');
+})();
+</script></body></html>
